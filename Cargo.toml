@@ -1,0 +1,23 @@
+[package]
+name = "gptee"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.67"
+authors = ["Roger Zurawicki <roger@zura.wiki>"]
+categories = ["development-tools"]
+keywords = ["openai", "ai", "gpt"]
+description = "output from a language model using standard input as the prompt"
+readme = "README.md"
+license = "MIT"
+homepage = "https://github.com/zurawiki/gptee"
+repository = "https://github.com/zurawiki/gptee"
+
+[[bin]]
+name = "gptee"
+path = "src/main.rs"
+
+[dependencies]
+async-openai = "0.6.0"
+backoff = { version = "0.4.0", features = ["tokio"] }
+tokio = {version = "1.23.0", features = ["full"]}
+tracing-subscriber = { version = "0.3.16", features = ["env-filter"]}
