@@ -22,20 +22,28 @@ cargo install --locked gptee
 
 `gptee` was designed for use within shell scripts and other programs, and also works in interactive shells.
 
-The following shell script demonstrates how prompts and can "chained" together.
-
+Simple example
 
 ```sh
-HUMAN_MESSAGE="What is B.O's dog called?"
+echo Tell me a joke | gptee
+```
+
+```
+Why did the chicken cross the road?
+
+To get to the other side!
+
+```
+
+The following shell script demonstrates how prompts and can "chained" together.
+(TODO)
+
+```sh
+ORIG_PROMPT="What is B.O's dog called?"
 
 ENTITIES=$(echo "List out the entities in the prompt below" $ORIG_PROMPT | gptee)
 
 echo "Answer questions given the following context:" $ENTITIES "Answer the query below" $ORIG_PROMPT | gptee
-```
-
-Simple example
-```sh
-echo Tell me a joke | gptee
 ```
 
 ## Encountered any bugs?
