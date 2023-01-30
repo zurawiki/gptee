@@ -19,5 +19,5 @@ path = "src/main.rs"
 [dependencies]
 async-openai = "0.6.0"
 backoff = { version = "0.4.0", features = ["tokio"] }
-tokio = {version = "1.23.0", features = ["full"]}
+tokio = {version = "1.25.0", features = ["full"]}
 tracing-subscriber = { version = "0.3.16", features = ["env-filter"]}
