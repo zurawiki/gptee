@@ -35,6 +35,11 @@ To get to the other side!
 
 ```
 
+Try with a custom model
+```sh
+OPENAI_MODEL=text-davinci-003 echo Tell me a joke | gptee
+```
+
 The following shell script demonstrates how prompts and can "chained" together.
 (TODO)
 

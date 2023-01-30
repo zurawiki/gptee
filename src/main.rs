@@ -5,10 +5,12 @@ use async_openai::{types::CreateCompletionRequestArgs, Client};
 use tracing_subscriber::{fmt, prelude::*, EnvFilter};
 
 async fn prompt(client: &Client, prompt: &str) -> Result<String, Box<dyn Error>> {
+    let model = std::env::var("OPENAI_MODEL").unwrap_or_else(|_| "text-ada-001".to_string());
+
     let request = CreateCompletionRequestArgs::default()
-        .model("text-ada-001")
+        .model(model)
         .prompt(prompt)
-        .max_tokens(30_u16)
+        .max_tokens(2000u16)
         .build()?;
 
     let response = client.completions().create(request).await?;
