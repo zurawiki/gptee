@@ -1,3 +1,4 @@
+use std::io::Write;
 use std::{error::Error, io};
 
 use async_openai::{types::CreateCompletionRequestArgs, Client};
@@ -19,13 +20,18 @@ fn model_name_to_context_size(model_name: &str) -> u16 {
     }
 }
 
-fn count_tokens(prompt: &str) -> u16 {
-    let lower_case = false;
-    let vocab = Gpt2Vocab::from_file("./resources/encoder.json").unwrap();
-    let merges = BpePairVocab::from_file("./resources/vocab.bpe").unwrap();
+fn count_tokens(prompt: &str) -> anyhow::Result<u16> {
+    let mut vocab_file = tempfile::NamedTempFile::new()?;
+    vocab_file.write_all(include_bytes!("../resources/encoder.json"))?;
+    let vocab = Gpt2Vocab::from_file(vocab_file.into_temp_path()).unwrap();
 
+    let mut merges_file = tempfile::NamedTempFile::new()?;
+    merges_file.write_all(include_bytes!("../resources/vocab.bpe"))?;
+    let merges = BpePairVocab::from_file(merges_file.into_temp_path()).unwrap();
+
+    let lower_case = false;
     let tokenizer = Gpt2Tokenizer::from_existing_vocab_and_merges(vocab, merges, lower_case);
-    tokenizer.tokenize(prompt).len() as u16
+    Ok(tokenizer.tokenize(prompt).len() as u16)
 }
 
 async fn prompt(client: &Client, prompt: &str) -> Result<String, Box<dyn Error>> {
@@ -36,7 +42,7 @@ async fn prompt(client: &Client, prompt: &str) -> Result<String, Box<dyn Error>>
         .model(&model)
         .prompt(prompt)
         .max_tokens(dbg!(
-            model_name_to_context_size(&model) - count_tokens(prompt)
+            model_name_to_context_size(&model) - count_tokens(prompt)?
         ))
         .build()?;
 
