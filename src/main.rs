@@ -4,13 +4,26 @@ use async_openai::{types::CreateCompletionRequestArgs, Client};
 
 use tracing_subscriber::{fmt, prelude::*, EnvFilter};
 
+/// Calculate the maximum number of tokens possible to generate for a model
+fn model_name_to_context_size(model_name: &str) -> u16 {
+    match model_name {
+        "text-davinci-003" => 4097,
+        "text-curie-001" => 2048,
+        "text-babbage-001" => 2048,
+        "text-ada-001" => 2048,
+        "code-davinci-002" => 8000,
+        "code-cushman-001" => 2048,
+        _ => 4097,
+    }
+}
+
 async fn prompt(client: &Client, prompt: &str) -> Result<String, Box<dyn Error>> {
     let model = std::env::var("OPENAI_MODEL").unwrap_or_else(|_| "text-ada-001".to_string());
 
     let request = CreateCompletionRequestArgs::default()
-        .model(model)
+        .model(&model)
         .prompt(prompt)
-        .max_tokens(2000u16)
+        .max_tokens(model_name_to_context_size(&model))
         .build()?;
 
     let response = client.completions().create(request).await?;
