@@ -5,6 +5,8 @@ use async_openai::{types::CreateCompletionRequestArgs, Client};
 use rust_tokenizers::tokenizer::{Gpt2Tokenizer, Tokenizer};
 use rust_tokenizers::vocab::{BpePairVocab, Gpt2Vocab, Vocab};
 
+use crate::cli::CompletionArgs;
+
 /// Calculate the maximum number of tokens possible to generate for a model
 fn model_name_to_context_size(model_name: &str) -> u16 {
     match model_name {
@@ -38,15 +40,27 @@ fn count_tokens(prompt: &str) -> anyhow::Result<u16> {
     Ok(tokenizer.tokenize(prompt).len() as u16)
 }
 
-pub(crate) async fn prompt(client: &Client, prompt: &str) -> anyhow::Result<String> {
-    let model = std::env::var("OPENAI_MODEL").unwrap_or_else(|_| "text-ada-001".to_string());
+pub(crate) async fn prompt(
+    client: &Client,
+    prompt: &str,
+    cli: CompletionArgs,
+) -> anyhow::Result<String> {
+    let mut request = &mut CreateCompletionRequestArgs::default();
+    request = request.prompt(prompt);
 
-    let request = CreateCompletionRequestArgs::default()
-        .model(&model)
-        .prompt(prompt)
-        .max_tokens(model_name_to_context_size(&model) - count_tokens(prompt)?)
-        .build()?;
+    let model = std::env::var("OPENAI_MODEL").unwrap_or(cli.model);
+    request = request.model(&model);
 
+    let max_tokens = cli
+        .max_tokens
+        .unwrap_or(model_name_to_context_size(&model) - count_tokens(prompt)?);
+    request = request.max_tokens(max_tokens);
+
+    if !cli.stop.is_empty() {
+        request = request.stop(cli.stop);
+    }
+
+    let request = request.build()?;
     let response = client.completions().create(request).await?;
 
     Ok(response.choices[0].text.trim().to_string())

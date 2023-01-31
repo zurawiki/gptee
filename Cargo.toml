@@ -20,6 +20,7 @@ path = "src/main.rs"
 anyhow = "1.0.68"
 async-openai = "0.6.0"
 backoff = { version = "0.4.0", features = ["tokio"] }
+clap = { version = "4.1.4", features = ["derive"] }
 rust_tokenizers = "8.0.0"
 tempfile = "3.3.0"
 tokio = {version = "1.25.0", features = ["full"]}
