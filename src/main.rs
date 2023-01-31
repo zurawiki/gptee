@@ -2,6 +2,8 @@ use std::{error::Error, io};
 
 use async_openai::{types::CreateCompletionRequestArgs, Client};
 
+use rust_tokenizers::tokenizer::{Gpt2Tokenizer, Tokenizer};
+use rust_tokenizers::vocab::{BpePairVocab, Gpt2Vocab, Vocab};
 use tracing_subscriber::{fmt, prelude::*, EnvFilter};
 
 /// Calculate the maximum number of tokens possible to generate for a model
@@ -17,13 +19,25 @@ fn model_name_to_context_size(model_name: &str) -> u16 {
     }
 }
 
+fn count_tokens(prompt: &str) -> u16 {
+    let lower_case = false;
+    let vocab = Gpt2Vocab::from_file("./resources/encoder.json").unwrap();
+    let merges = BpePairVocab::from_file("./resources/vocab.bpe").unwrap();
+
+    let tokenizer = Gpt2Tokenizer::from_existing_vocab_and_merges(vocab, merges, lower_case);
+    tokenizer.tokenize(prompt).len() as u16
+}
+
 async fn prompt(client: &Client, prompt: &str) -> Result<String, Box<dyn Error>> {
     let model = std::env::var("OPENAI_MODEL").unwrap_or_else(|_| "text-ada-001".to_string());
 
+    dbg!(&model);
     let request = CreateCompletionRequestArgs::default()
         .model(&model)
         .prompt(prompt)
-        .max_tokens(model_name_to_context_size(&model))
+        .max_tokens(dbg!(
+            model_name_to_context_size(&model) - count_tokens(prompt)
+        ))
         .build()?;
 
     let response = client.completions().create(request).await?;
