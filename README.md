@@ -36,19 +36,45 @@ To get to the other side!
 ```
 
 Try with a custom model
+
 ```sh
-OPENAI_MODEL=text-davinci-003 echo Tell me a joke | gptee
+echo Tell me a joke | gptee -m text-davinci-003
 ```
 
 The following shell script demonstrates how prompts and can "chained" together.
 (TODO)
 
 ```sh
-ORIG_PROMPT="What is B.O's dog called?"
+$ cat << EOF | gptee -m text-davinci-003 -s "Observation: "
+Answer the following questions as best you can. You have access to the following tools:
 
-ENTITIES=$(echo "List out the entities in the prompt below" $ORIG_PROMPT | gptee)
+Search: A search engine. Useful for when you need to answer questions about current events. Input should be a search query.
+Calculator: Useful for when you need to answer questions about math.
 
-echo "Answer questions given the following context:" $ENTITIES "Answer the query below" $ORIG_PROMPT | gptee
+Use the following format:
+
+Question: the input question you must answer
+Thought: you should always think about what to do
+Action: the action to take, should be one of [Search, Calculator]
+Action Input: the input to the action
+Observation: the result of the action
+... (this Thought/Action/Action Input/Observation can repeat N times)
+Thought: I now know the final answer
+Final Answer: the final answer to the original input question
+
+Begin!
+
+Question: Who is Olivia Wilde's boyfriend? What is his current age raised to the 0.23 power?
+Thought:
+EOF
+```
+
+output:
+
+```
+I should look up Olivia Wilde's boyfriend first.
+Action: Search
+Action Input: Olivia Wilde boyfriend
 ```
 
 ## Encountered any bugs?
