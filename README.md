@@ -35,6 +35,11 @@ To get to the other side!
 
 ```
 
+Compose shell commands like you would in a script
+```sh
+echo "Tell me a joke" | gptee | say
+``` 
+
 Try with a custom model
 
 ```sh
