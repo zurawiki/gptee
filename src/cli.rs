@@ -5,7 +5,7 @@ use std::io;
 use tracing_subscriber::{fmt, prelude::*, EnvFilter};
 
 /// Simple program to greet a person
-#[derive(Parser, Debug)]
+#[derive(Parser, Debug, Clone)]
 #[command(author, version, about, long_about = None)]
 pub(crate) struct CompletionArgs {
     /// ID of the model to use. You can use the [List models](https://beta.openai.com/docs/api-reference/models/list) API to see all of your available models, or see our [Model overview](https://beta.openai.com/docs/models/overview) for descriptions of them.
@@ -47,6 +47,13 @@ pub(crate) async fn main() -> anyhow::Result<()> {
         .map(|x| x.unwrap())
         .collect::<Vec<String>>()
         .join("\n");
-    prompt::prompt(&client, &input, cli).await?;
+
+    let model = std::env::var("OPENAI_MODEL").unwrap_or_else(|_| cli.clone().model);
+
+    if prompt::should_use_chat_completion(&model) {
+        prompt::chat_completion(&client, &input, &model, &cli).await?;
+    } else {
+        prompt::completion(&client, &input, &model, &cli).await?;
+    }
     Ok(())
 }
