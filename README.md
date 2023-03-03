@@ -10,10 +10,8 @@
 
 Output from a language model using standard input as the prompt
 
-
-[![asciicast](https://asciinema.org/a/564296.svg)](https://asciinema.org/a/564296)
+[![asciicast](https://asciinema.org/a/6q1tQ6TvZvWLqpIJBlTouPHBl.svg)](https://asciinema.org/a/6q1tQ6TvZvWLqpIJBlTouPHBl)
 **Now supporting GPT3.5 chat completions!**
-
 
 ## Installation
 
