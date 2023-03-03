@@ -14,13 +14,14 @@ use crate::cli::CompletionArgs;
 /// Calculate the maximum number of tokens possible to generate for a model
 fn model_name_to_context_size(model_name: &str) -> u16 {
     match model_name {
-        "text-davinci-003" => 4097,
+        "text-davinci-003" => 4000,
+        "text-davinci-002" => 4000,
         "text-curie-001" => 2048,
         "text-babbage-001" => 2048,
         "text-ada-001" => 2048,
-        "code-davinci-002" => 8000,
+        "code-davinci-002" => 4000,
         "code-cushman-001" => 2048,
-        _ => 4097,
+        _ => 4096,
     }
 }
 
@@ -97,11 +98,16 @@ pub(crate) async fn completion(
     cli: &CompletionArgs,
 ) -> anyhow::Result<()> {
     let request = &mut CreateCompletionRequestArgs::default();
-    let request = request.prompt(prompt);
+
+    let mut prompt = prompt.to_string();
+    if let Some(system_message) = &cli.system_message {
+        prompt = format!("{system_message} {prompt}");
+    }
+    let request = request.prompt(&prompt);
 
     let request = request.model(model);
 
-    let max_tokens = model_name_to_context_size(model) - count_tokens(prompt)?;
+    let max_tokens = model_name_to_context_size(model) - count_tokens(&prompt)?;
     let max_tokens = cli.max_tokens.unwrap_or(max_tokens);
     let request = request.max_tokens(max_tokens);
 

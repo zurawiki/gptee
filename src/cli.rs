@@ -9,7 +9,7 @@ use tracing_subscriber::{fmt, prelude::*, EnvFilter};
 #[command(author, version, about, long_about = None)]
 pub(crate) struct CompletionArgs {
     /// ID of the model to use. You can use the [List models](https://beta.openai.com/docs/api-reference/models/list) API to see all of your available models, or see our [Model overview](https://beta.openai.com/docs/models/overview) for descriptions of them.
-    #[arg(short, long, default_value_t = String::from("text-ada-001"))]
+    #[arg(short, long, default_value_t = String::from("gpt-3.5-turbo"))]
     pub model: String,
 
     /// The maximum number of [tokens](/tokenizer) to generate in the completion.
