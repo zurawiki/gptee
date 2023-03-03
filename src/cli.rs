@@ -1,4 +1,5 @@
 use crate::prompt;
+use anyhow::bail;
 use async_openai::Client;
 use clap::{command, Parser};
 use std::io;
@@ -46,7 +47,13 @@ pub(crate) async fn main() -> anyhow::Result<()> {
         .with_max_elapsed_time(Some(std::time::Duration::from_secs(60)))
         .build();
 
-    let client = Client::new().with_backoff(backoff);
+    let api_key = if let Ok(api_key) = std::env::var("OPENAI_API_KEY") {
+        api_key
+    } else {
+        bail!("OPENAI_API_KEY must be set");
+    };
+
+    let client = Client::new().with_backoff(backoff).with_api_key(api_key);
 
     // get all of stdin into a string
     let input: String = io::stdin()
