@@ -19,8 +19,15 @@ pub(crate) struct CompletionArgs {
     pub max_tokens: Option<u16>,
 
     /// Up to 4 sequences where the API will stop generating further tokens. The returned text will not contain the stop sequence.
-    #[arg(short, long)]
+    #[arg(short = 't', long)]
     pub stop: Vec<String>,
+
+    /// For chat completions, you can specify a system message to be sent to the model.
+    /// This message will be sent to the model before the user's message.
+    /// This is useful for providing context to the model, or for providing a prompt to the model.
+    /// See https://platform.openai.com/docs/guides/chat for more details.
+    #[arg(short, long)]
+    pub system_message: Option<String>,
 }
 
 pub(crate) async fn main() -> anyhow::Result<()> {

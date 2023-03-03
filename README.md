@@ -38,7 +38,7 @@ To get to the other side!
 Compose shell commands like you would in a script
 ```sh
 echo "Tell me a joke" | gptee | say
-``` 
+```
 
 Try with a custom model
 
@@ -50,7 +50,7 @@ The following shell script demonstrates how prompts and can "chained" together.
 (TODO)
 
 ```sh
-$ cat << EOF | gptee -m text-davinci-003 -s "Observation: "
+$ cat << EOF | gptee -m text-davinci-003 -t "Observation: "
 Answer the following questions as best you can. You have access to the following tools:
 
 Search: A search engine. Useful for when you need to answer questions about current events. Input should be a search query.
