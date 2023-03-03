@@ -47,8 +47,6 @@ pub(crate) async fn main() -> anyhow::Result<()> {
         .map(|x| x.unwrap())
         .collect::<Vec<String>>()
         .join("\n");
-    let output = prompt::prompt(&client, &input, cli).await?;
-    println!("{output}");
-
+    prompt::prompt(&client, &input, cli).await?;
     Ok(())
 }
