@@ -41,12 +41,22 @@ pub(crate) async fn chat_completion(
     cli: &CompletionArgs,
 ) -> anyhow::Result<()> {
     let request = &mut CreateChatCompletionRequestArgs::default();
-    let request = request.messages([ChatCompletionRequestMessageArgs::default()
+    let request = request.model(model);
+
+    let mut messages = vec![ChatCompletionRequestMessageArgs::default()
         .content(prompt)
         .role(Role::User)
-        .build()?]);
-
-    let request = request.model(model);
+        .build()?];
+    if let Some(system_message) = &cli.system_message {
+        messages.insert(
+            0,
+            ChatCompletionRequestMessageArgs::default()
+                .content(system_message)
+                .role(Role::System)
+                .build()?,
+        );
+    }
+    let request = request.messages(messages);
 
     // let max_tokens = model_name_to_context_size(&model) - count_tokens(prompt)?;
     // let max_tokens = cli.max_tokens.unwrap_or(max_tokens);
