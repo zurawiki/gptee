@@ -1,4 +1,10 @@
-use async_openai::{types::CreateCompletionRequestArgs, Client};
+use async_openai::{
+    types::{
+        ChatCompletionRequestMessageArgs, CreateChatCompletionRequestArgs,
+        CreateCompletionRequestArgs, Role,
+    },
+    Client,
+};
 
 use futures::StreamExt;
 use tiktoken_rs::tiktoken::p50k_base;
@@ -24,24 +30,76 @@ fn count_tokens(prompt: &str) -> anyhow::Result<u16> {
     Ok(tokens.len() as u16)
 }
 
-pub(crate) async fn prompt(
+pub(crate) fn should_use_chat_completion(model: &str) -> bool {
+    model.to_lowercase().starts_with("gpt-3.5-turbo")
+}
+
+pub(crate) async fn chat_completion(
     client: &Client,
     prompt: &str,
-    cli: CompletionArgs,
+    model: &str,
+    cli: &CompletionArgs,
 ) -> anyhow::Result<()> {
-    let mut request = &mut CreateCompletionRequestArgs::default();
-    request = request.prompt(prompt);
+    let request = &mut CreateChatCompletionRequestArgs::default();
+    let request = request.messages([ChatCompletionRequestMessageArgs::default()
+        .content(prompt)
+        .role(Role::User)
+        .build()?]);
 
-    let model = std::env::var("OPENAI_MODEL").unwrap_or(cli.model);
-    request = request.model(&model);
+    let request = request.model(model);
 
-    let max_tokens = model_name_to_context_size(&model) - count_tokens(prompt)?;
-    let max_tokens = cli.max_tokens.unwrap_or(max_tokens);
-    request = request.max_tokens(max_tokens);
+    // let max_tokens = model_name_to_context_size(&model) - count_tokens(prompt)?;
+    // let max_tokens = cli.max_tokens.unwrap_or(max_tokens);
+    // let mut request = request.max_tokens(max_tokens);
 
-    if !cli.stop.is_empty() {
-        request = request.stop(cli.stop);
+    let request = if !cli.stop.is_empty() {
+        request.stop(&cli.stop)
+    } else {
+        request
+    };
+
+    let request = request.build()?;
+    let mut stream = client.chat().create_stream(request).await?;
+
+    // For reasons not documented in OpenAI docs / OpenAPI spec, the response of streaming call is different and doesn't include all the same fields.
+    while let Some(result) = stream.next().await {
+        match result {
+            Ok(response) => {
+                response.choices.iter().for_each(|chat_choice| {
+                    if let Some(ref content) = chat_choice.delta.content {
+                        print!("{content}");
+                    }
+                });
+            }
+            Err(e) => {
+                eprintln!("{e}");
+            }
+        }
     }
+    println!();
+
+    Ok(())
+}
+pub(crate) async fn completion(
+    client: &Client,
+    prompt: &str,
+    model: &str,
+    cli: &CompletionArgs,
+) -> anyhow::Result<()> {
+    let request = &mut CreateCompletionRequestArgs::default();
+    let request = request.prompt(prompt);
+
+    let request = request.model(model);
+
+    let max_tokens = model_name_to_context_size(model) - count_tokens(prompt)?;
+    let max_tokens = cli.max_tokens.unwrap_or(max_tokens);
+    let request = request.max_tokens(max_tokens);
+
+    let request = if !cli.stop.is_empty() {
+        request.stop(&cli.stop)
+    } else {
+        request
+    };
 
     let request = request.stream(true);
     let request = request.build()?;
@@ -56,6 +114,6 @@ pub(crate) async fn prompt(
             Err(e) => eprintln!("{e}"),
         }
     }
-    println!("");
+    println!();
     Ok(())
 }
