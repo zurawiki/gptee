@@ -1,8 +1,10 @@
 use crate::prompt;
 use anyhow::bail;
 use async_openai::Client;
-use clap::{command, Parser};
-use std::io;
+use clap::{command, value_parser, Parser};
+use std::fs::File;
+use std::io::{self, Read};
+use std::path::{Path, PathBuf};
 use tracing_subscriber::{fmt, prelude::*, EnvFilter};
 
 /// Simple program to greet a person
@@ -29,6 +31,10 @@ pub(crate) struct CompletionArgs {
     /// See https://platform.openai.com/docs/guides/chat for more details.
     #[arg(short, long)]
     pub system_message: Option<String>,
+
+    /// File(s) to print / concatenate. Use a dash ('-') or no argument at all to read from standard input
+    #[arg(value_parser = value_parser!(PathBuf), name = "FILE")]
+    pub files: Vec<PathBuf>,
 }
 
 pub(crate) async fn main() -> anyhow::Result<()> {
@@ -55,12 +61,7 @@ pub(crate) async fn main() -> anyhow::Result<()> {
 
     let client = Client::new().with_backoff(backoff).with_api_key(api_key);
 
-    // get all of stdin into a string
-    let input: String = io::stdin()
-        .lines()
-        .map(|x| x.unwrap())
-        .collect::<Vec<String>>()
-        .join("\n");
+    let input = get_prompt_from_input(&cli.files)?;
 
     let model = std::env::var("OPENAI_MODEL").unwrap_or_else(|_| cli.clone().model);
 
@@ -70,4 +71,27 @@ pub(crate) async fn main() -> anyhow::Result<()> {
         prompt::completion(&client, &input, &model, &cli).await?;
     }
     Ok(())
+}
+
+fn get_prompt_from_input(files: &Vec<PathBuf>) -> anyhow::Result<String> {
+    if files.is_empty() || files.len() == 1 && files[0] == Path::new("-") {
+        // Read from stdin
+        let input: String = io::stdin()
+            .lines()
+            .map(|x| x.unwrap())
+            .collect::<Vec<String>>()
+            .join("\n");
+        return Ok(input);
+    }
+    if files.iter().any(|x| x == Path::new("-")) {
+        bail!("Cannot mix stdin and files");
+    }
+
+    // Read from files
+    let mut input = String::new();
+    for file in files {
+        let mut file = File::open(file)?;
+        file.read_to_string(&mut input)?;
+    }
+    Ok(input)
 }
