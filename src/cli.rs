@@ -73,25 +73,30 @@ pub(crate) async fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
+fn get_stdin() -> anyhow::Result<String> {
+    let input: String = io::stdin()
+        .lines()
+        .map(|x| x.unwrap())
+        .collect::<Vec<String>>()
+        .join("\n");
+    Ok(input)
+}
+
 fn get_prompt_from_input(files: &Vec<PathBuf>) -> anyhow::Result<String> {
-    if files.is_empty() || files.len() == 1 && files[0] == Path::new("-") {
-        // Read from stdin
-        let input: String = io::stdin()
-            .lines()
-            .map(|x| x.unwrap())
-            .collect::<Vec<String>>()
-            .join("\n");
-        return Ok(input);
-    }
-    if files.iter().any(|x| x == Path::new("-")) {
-        bail!("Cannot mix stdin and files");
+    if files.is_empty() {
+        return get_stdin();
     }
 
     // Read from files
     let mut input = String::new();
     for file in files {
+        if file == Path::new("-") {
+            input.push_str(&get_stdin()?);
+            continue;
+        }
         let mut file = File::open(file)?;
         file.read_to_string(&mut input)?;
+        input.push(' ');
     }
     Ok(input)
 }
