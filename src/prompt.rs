@@ -1,3 +1,4 @@
+use anyhow::bail;
 use async_openai::{
     types::{
         ChatCompletionRequestMessageArgs, CreateChatCompletionRequestArgs,
@@ -83,7 +84,7 @@ pub(crate) async fn chat_completion(
                 });
             }
             Err(e) => {
-                eprintln!("{e}");
+                bail!("{e}");
             }
         }
     }
@@ -127,7 +128,7 @@ pub(crate) async fn completion(
             Ok(ccr) => ccr.choices.iter().for_each(|c| {
                 print!("{}", c.text);
             }),
-            Err(e) => eprintln!("{e}"),
+            Err(e) => bail!("{e}"),
         }
     }
     println!();
