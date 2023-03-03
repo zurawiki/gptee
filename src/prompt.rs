@@ -1,5 +1,6 @@
 use async_openai::{types::CreateCompletionRequestArgs, Client};
 
+use futures::StreamExt;
 use tiktoken_rs::tiktoken::p50k_base;
 
 use crate::cli::CompletionArgs;
@@ -27,24 +28,34 @@ pub(crate) async fn prompt(
     client: &Client,
     prompt: &str,
     cli: CompletionArgs,
-) -> anyhow::Result<String> {
+) -> anyhow::Result<()> {
     let mut request = &mut CreateCompletionRequestArgs::default();
     request = request.prompt(prompt);
 
     let model = std::env::var("OPENAI_MODEL").unwrap_or(cli.model);
     request = request.model(&model);
 
-    let max_tokens = cli
-        .max_tokens
-        .unwrap_or(model_name_to_context_size(&model) - count_tokens(prompt)?);
+    let max_tokens = model_name_to_context_size(&model) - count_tokens(prompt)?;
+    let max_tokens = cli.max_tokens.unwrap_or(max_tokens);
     request = request.max_tokens(max_tokens);
 
     if !cli.stop.is_empty() {
         request = request.stop(cli.stop);
     }
 
+    let request = request.stream(true);
     let request = request.build()?;
-    let response = client.completions().create(request).await?;
 
-    Ok(response.choices[0].text.trim().to_string())
+    let mut stream = client.completions().create_stream(request).await?;
+
+    while let Some(response) = stream.next().await {
+        match response {
+            Ok(ccr) => ccr.choices.iter().for_each(|c| {
+                print!("{}", c.text);
+            }),
+            Err(e) => eprintln!("{e}"),
+        }
+    }
+    println!("");
+    Ok(())
 }
