@@ -44,6 +44,7 @@ pub(crate) async fn chat_completion(
 ) -> anyhow::Result<()> {
     let request = &mut CreateChatCompletionRequestArgs::default();
     let request = request.model(model);
+    let request = request.temperature(cli.temperature).top_p(cli.top_p);
 
     let mut messages = vec![ChatCompletionRequestMessageArgs::default()
         .content(prompt)
@@ -99,6 +100,7 @@ pub(crate) async fn completion(
     cli: &CompletionArgs,
 ) -> anyhow::Result<()> {
     let request = &mut CreateCompletionRequestArgs::default();
+    let request = request.temperature(cli.temperature).top_p(cli.top_p);
 
     let mut prompt = prompt.to_string();
     if let Some(system_message) = &cli.system_message {
