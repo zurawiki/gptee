@@ -48,8 +48,10 @@ pub(crate) struct CompletionArgs {
 pub(crate) async fn main() -> anyhow::Result<()> {
     let cli = CompletionArgs::parse();
 
-    // This should come from env var outside the program
-    std::env::set_var("RUST_LOG", "warn");
+    // Set RUST_LOG if not set
+    if std::env::var("RUST_LOG").is_err() {
+        std::env::set_var("RUST_LOG", "warn");
+    }
 
     // Setup tracing subscriber so that library can log the rate limited message
     tracing_subscriber::registry()
