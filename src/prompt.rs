@@ -8,7 +8,7 @@ use async_openai::{
 };
 
 use futures::StreamExt;
-use tiktoken_rs::tiktoken::p50k_base;
+use tiktoken_rs::tiktoken::{cl100k_base, p50k_base};
 
 use crate::cli::CompletionArgs;
 
@@ -26,8 +26,12 @@ fn model_name_to_context_size(model_name: &str) -> u16 {
     }
 }
 
-fn count_tokens(prompt: &str) -> anyhow::Result<u16> {
-    let bpe = p50k_base().unwrap();
+fn count_tokens(model: &str, prompt: &str) -> anyhow::Result<u16> {
+    let bpe = match should_use_chat_completion(model) {
+        true => cl100k_base(),
+        false => p50k_base(),
+    }
+    .unwrap();
     let tokens = bpe.encode_with_special_tokens(prompt);
     Ok(tokens.len() as u16)
 }
@@ -62,10 +66,22 @@ pub(crate) async fn chat_completion(
     }
     let request = request.messages(messages);
 
-    let max_tokens = model_name_to_context_size(model) - count_tokens(prompt)?;
-    let max_tokens = cli.max_tokens.unwrap_or(max_tokens);
-    let request = request.max_tokens(max_tokens);
+    // let max_tokens = cli.max_tokens.unwrap_or_else(|| {
+    //     model_name_to_context_size(model)
+    //     - count_tokens(
+    //         model,
+    //         &cli.system_message.to_owned().unwrap_or("".to_owned()),
+    //     ).unwrap_or(0)
+    //     - count_tokens(model, prompt).unwrap_or(0)
+    //     // Chat completions use extra tokens for the prompt
+    //     - 10
+    // });
 
+    let request = if cli.max_tokens.is_some() {
+        request.max_tokens(cli.max_tokens.unwrap())
+    } else {
+        request
+    };
     let request = if !cli.stop.is_empty() {
         request.stop(&cli.stop)
     } else {
@@ -111,8 +127,9 @@ pub(crate) async fn completion(
 
     let request = request.model(model);
 
-    let max_tokens = model_name_to_context_size(model) - count_tokens(&prompt)?;
-    let max_tokens = cli.max_tokens.unwrap_or(max_tokens);
+    let max_tokens = cli.max_tokens.unwrap_or_else(|| {
+        model_name_to_context_size(model) - count_tokens(model, &prompt).unwrap_or(0)
+    });
     let request = request.max_tokens(max_tokens);
 
     let request = if !cli.stop.is_empty() {
