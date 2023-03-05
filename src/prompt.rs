@@ -44,7 +44,8 @@ pub(crate) async fn chat_completion(
 ) -> anyhow::Result<()> {
     let request = &mut CreateChatCompletionRequestArgs::default();
     let request = request.model(model);
-    let request = request.temperature(cli.temperature).top_p(cli.top_p);
+    let request = request.top_p(cli.top_p);
+    let request = request.temperature(cli.temperature);
 
     let mut messages = vec![ChatCompletionRequestMessageArgs::default()
         .content(prompt)
@@ -61,9 +62,9 @@ pub(crate) async fn chat_completion(
     }
     let request = request.messages(messages);
 
-    // let max_tokens = model_name_to_context_size(&model) - count_tokens(prompt)?;
-    // let max_tokens = cli.max_tokens.unwrap_or(max_tokens);
-    // let mut request = request.max_tokens(max_tokens);
+    let max_tokens = model_name_to_context_size(&model) - count_tokens(prompt)?;
+    let max_tokens = cli.max_tokens.unwrap_or(max_tokens);
+    let request = request.max_tokens(max_tokens);
 
     let request = if !cli.stop.is_empty() {
         request.stop(&cli.stop)
