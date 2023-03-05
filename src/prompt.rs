@@ -62,7 +62,7 @@ pub(crate) async fn chat_completion(
     }
     let request = request.messages(messages);
 
-    let max_tokens = model_name_to_context_size(&model) - count_tokens(prompt)?;
+    let max_tokens = model_name_to_context_size(model) - count_tokens(prompt)?;
     let max_tokens = cli.max_tokens.unwrap_or(max_tokens);
     let request = request.max_tokens(max_tokens);
 
