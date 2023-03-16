@@ -1281,9 +1281,9 @@ dependencies = [
 
 [[package]]
 name = "tiktoken-rs"
-version = "0.1.4"
+version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f4918eef4e8d3e45bfab9eb145082ee12a20a6cc1b352db525e9ad4c453dfb87"
+checksum = "7bdbfb7cc1905920c7b0487c47c3ea858a979b85ed41b74dfe411ca6e3f6fcdf"
 dependencies = [
  "anyhow",
  "base64",
