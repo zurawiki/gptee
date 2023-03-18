@@ -8,36 +8,11 @@ use async_openai::{
 };
 
 use futures::StreamExt;
-use tiktoken_rs::tiktoken::{cl100k_base, p50k_base};
 
 use crate::cli::CompletionArgs;
 
-/// Calculate the maximum number of tokens possible to generate for a model
-fn model_name_to_context_size(model_name: &str) -> u16 {
-    match model_name {
-        "text-davinci-003" => 4000,
-        "text-davinci-002" => 4000,
-        "text-curie-001" => 2048,
-        "text-babbage-001" => 2048,
-        "text-ada-001" => 2048,
-        "code-davinci-002" => 4000,
-        "code-cushman-001" => 2048,
-        _ => 4096,
-    }
-}
-
-fn count_tokens(model: &str, prompt: &str) -> anyhow::Result<u16> {
-    let bpe = match should_use_chat_completion(model) {
-        true => cl100k_base(),
-        false => p50k_base(),
-    }
-    .unwrap();
-    let tokens = bpe.encode_with_special_tokens(prompt);
-    Ok(tokens.len() as u16)
-}
-
 pub(crate) fn should_use_chat_completion(model: &str) -> bool {
-    model.to_lowercase().starts_with("gpt-3.5-turbo")
+    model.to_lowercase().starts_with("gpt-4") || model.to_lowercase().starts_with("gpt-3.5-turbo")
 }
 
 pub(crate) async fn chat_completion(
@@ -64,24 +39,12 @@ pub(crate) async fn chat_completion(
                 .build()?,
         );
     }
-    let request = request.messages(messages);
+    let request = request.messages(messages.to_owned());
+    let max_tokens = cli.max_tokens.unwrap_or_else(|| {
+        tiktoken_rs::get_chat_completion_max_tokens(model, &messages).unwrap() as u16
+    });
 
-    // let max_tokens = cli.max_tokens.unwrap_or_else(|| {
-    //     model_name_to_context_size(model)
-    //     - count_tokens(
-    //         model,
-    //         &cli.system_message.to_owned().unwrap_or("".to_owned()),
-    //     ).unwrap_or(0)
-    //     - count_tokens(model, prompt).unwrap_or(0)
-    //     // Chat completions use extra tokens for the prompt
-    //     - 10
-    // });
-
-    let request = if cli.max_tokens.is_some() {
-        request.max_tokens(cli.max_tokens.unwrap())
-    } else {
-        request
-    };
+    let request = request.max_tokens(max_tokens);
     let request = if !cli.stop.is_empty() {
         request.stop(&cli.stop)
     } else {
@@ -127,10 +90,12 @@ pub(crate) async fn completion(
 
     let request = request.model(model);
 
-    let max_tokens = cli.max_tokens.unwrap_or_else(|| {
-        model_name_to_context_size(model) - count_tokens(model, &prompt).unwrap_or(0)
-    });
-    let request = request.max_tokens(max_tokens);
+    let request = if let Some(max_tokens) = cli.max_tokens {
+        request.max_tokens(max_tokens)
+    } else {
+        let max_tokens = tiktoken_rs::get_completion_max_tokens(model, &prompt)? as u16;
+        request.max_tokens(max_tokens)
+    };
 
     let request = if !cli.stop.is_empty() {
         request.stop(&cli.stop)

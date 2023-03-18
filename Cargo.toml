@@ -18,11 +18,11 @@ path = "src/main.rs"
 
 [dependencies]
 anyhow = "1.0.69"
-async-openai = "0.9.4"
+async-openai = "0.9.5"
 backoff = { version = "0.4.0", features = ["tokio"] }
-clap = { version = "4.1.9", features = ["derive"] }
+clap = { version = "4.1.10", features = ["derive"] }
 futures = "0.3.27"
 tempfile = "3.4.0"
-tiktoken-rs = "0.2.2"
+tiktoken-rs = "0.3.1"
 tokio = {version = "1.26.0", features = ["full"]}
 tracing-subscriber = { version = "0.3.16", features = ["env-filter"]}
