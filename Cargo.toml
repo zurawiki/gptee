@@ -24,4 +24,4 @@ clap = { version = "4.2.1", features = ["derive"] }
 futures = "0.3.28"
 tiktoken-rs = "0.3.3"
 tokio = {version = "1.27.0", features = ["full"]}
-tracing-subscriber = { version = "0.3.16", features = ["env-filter"]}
+tracing-subscriber = { version = "0.3.17", features = ["env-filter"]}
