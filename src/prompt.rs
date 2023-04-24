@@ -8,6 +8,7 @@ use async_openai::{
 };
 
 use futures::StreamExt;
+use tiktoken_rs::async_openai::get_chat_completion_max_tokens;
 
 use crate::cli::CompletionArgs;
 
@@ -40,9 +41,9 @@ pub(crate) async fn chat_completion(
         );
     }
     let request = request.messages(messages.to_owned());
-    let max_tokens = cli.max_tokens.unwrap_or_else(|| {
-        tiktoken_rs::get_chat_completion_max_tokens(model, &messages).unwrap() as u16
-    });
+    let max_tokens = cli
+        .max_tokens
+        .unwrap_or_else(|| get_chat_completion_max_tokens(model, &messages).unwrap() as u16);
 
     let request = request.max_tokens(max_tokens);
     let request = if !cli.stop.is_empty() {
