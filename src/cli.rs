@@ -60,7 +60,7 @@ pub(crate) async fn main() -> anyhow::Result<()> {
         .init();
 
     let backoff = backoff::ExponentialBackoffBuilder::new()
-        .with_max_elapsed_time(Some(std::time::Duration::from_secs(60)))
+        .with_max_elapsed_time(Some(std::time::Duration::from_secs(5 * 60)))
         .build();
 
     let api_key = if let Ok(api_key) = std::env::var("OPENAI_API_KEY") {

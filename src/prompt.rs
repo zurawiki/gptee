@@ -66,7 +66,7 @@ pub(crate) async fn chat_completion(
                 });
             }
             Err(e) => {
-                bail!("{e}");
+                bail!(e);
             }
         }
     }
@@ -114,7 +114,7 @@ pub(crate) async fn completion(
             Ok(ccr) => ccr.choices.iter().for_each(|c| {
                 print!("{}", c.text);
             }),
-            Err(e) => bail!("{e}"),
+            Err(e) => bail!(e),
         }
     }
     println!();
