@@ -1,5 +1,6 @@
 use anyhow::bail;
 use async_openai::{
+    config::Config,
     types::{
         ChatCompletionRequestMessageArgs, CreateChatCompletionRequestArgs,
         CreateCompletionRequestArgs, Role,
@@ -16,8 +17,8 @@ pub(crate) fn should_use_chat_completion(model: &str) -> bool {
     model.to_lowercase().starts_with("gpt-4") || model.to_lowercase().starts_with("gpt-3.5-turbo")
 }
 
-pub(crate) async fn chat_completion(
-    client: &Client,
+pub(crate) async fn chat_completion<C: Config>(
+    client: &Client<C>,
     prompt: &str,
     model: &str,
     cli: &CompletionArgs,
@@ -74,8 +75,8 @@ pub(crate) async fn chat_completion(
 
     Ok(())
 }
-pub(crate) async fn completion(
-    client: &Client,
+pub(crate) async fn completion<C: Config>(
+    client: &Client<C>,
     prompt: &str,
     model: &str,
     cli: &CompletionArgs,

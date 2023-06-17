@@ -1,5 +1,6 @@
 use crate::prompt;
 use anyhow::bail;
+use async_openai::config::OpenAIConfig;
 use async_openai::Client;
 use clap::{command, value_parser, Parser};
 use std::fs::File;
@@ -69,7 +70,8 @@ pub(crate) async fn main() -> anyhow::Result<()> {
         bail!("OPENAI_API_KEY must be set");
     };
 
-    let client = Client::new().with_backoff(backoff).with_api_key(api_key);
+    let client = Client::<OpenAIConfig>::with_config(OpenAIConfig::new().with_api_key(api_key))
+        .with_backoff(backoff);
 
     let input = get_prompt_from_input(&cli.files)?;
 
