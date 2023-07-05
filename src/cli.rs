@@ -8,6 +8,11 @@ use std::io::{self, Read};
 use std::path::{Path, PathBuf};
 use tracing_subscriber::{fmt, prelude::*, EnvFilter};
 
+/// ```
+/// use std::io;
+/// let mut input = String::new();
+/// io::stdin().read_line(&mut input)?;
+/// ```
 /// Simple program to greet a person
 #[derive(Parser, Debug, Clone)]
 #[command(author, version, about, long_about = None)]
