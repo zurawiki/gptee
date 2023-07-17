@@ -17,7 +17,7 @@ name = "gptee"
 path = "src/main.rs"
 
 [dependencies]
-anyhow = "1.0.71"
+anyhow = "1.0.72"
 async-openai = "0.12.1"
 backoff = { version = "0.4.0", features = ["tokio"] }
 clap = { version = "4.3.11", features = ["derive"] }
