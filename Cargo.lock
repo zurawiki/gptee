@@ -104,6 +104,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "async-openai"
+version = "0.13.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0492edb15da150dc70353f69921ca5fd40e41761c5ee91c42509149d83a7d1d9"
+dependencies = [
+ "backoff",
+ "base64",
+ "derive_builder",
+ "futures",
+ "rand",
+ "reqwest",
+ "reqwest-eventsource",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "tokio",
+ "tokio-stream",
+ "tokio-util",
+ "tracing",
+]
+
+[[package]]
 name = "autocfg"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -519,7 +541,7 @@ name = "gptee"
 version = "0.3.8"
 dependencies = [
  "anyhow",
- "async-openai",
+ "async-openai 0.12.1",
  "backoff",
  "clap",
  "futures",
@@ -1347,12 +1369,12 @@ dependencies = [
 
 [[package]]
 name = "tiktoken-rs"
-version = "0.5.0"
+version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1a99d843674a3468b4a9200a565bbe909a0152f95e82a52feae71e6bf2d4b49d"
+checksum = "2bf14cb08d8fda6e484c75ec2bfb6bcef48347d47abcd011fa9d56ee995a3da0"
 dependencies = [
  "anyhow",
- "async-openai",
+ "async-openai 0.13.1",
  "base64",
  "bstr",
  "fancy-regex",
