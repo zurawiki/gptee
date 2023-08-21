@@ -18,7 +18,7 @@ path = "src/main.rs"
 
 [dependencies]
 anyhow = "1.0.72"
-async-openai = "0.12.1"
+async-openai = "0.13.1"
 backoff = { version = "0.4.0", features = ["tokio"] }
 clap = { version = "4.3.19", features = ["derive"] }
 futures = "0.3.28"

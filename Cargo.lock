@@ -83,9 +83,31 @@ checksum = "3b13c32d80ecc7ab747b80c3784bce54ee8a7a0cc4fbda9bf4cda2cf6fe90854"
 
 [[package]]
 name = "async-openai"
-version = "0.12.1"
+version = "0.12.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d49fb94de7aeeb8171852900c04da360959dfd82111229fbf4ad6a3aca819cb6"
+checksum = "2317b67171a0c629b455732f8319b58027bd89d7ca72e35607e81b4b3596d663"
+dependencies = [
+ "backoff",
+ "base64",
+ "derive_builder",
+ "futures",
+ "rand",
+ "reqwest",
+ "reqwest-eventsource",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "tokio",
+ "tokio-stream",
+ "tokio-util",
+ "tracing",
+]
+
+[[package]]
+name = "async-openai"
+version = "0.13.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0492edb15da150dc70353f69921ca5fd40e41761c5ee91c42509149d83a7d1d9"
 dependencies = [
  "backoff",
  "base64",
@@ -519,7 +541,7 @@ name = "gptee"
 version = "0.3.8"
 dependencies = [
  "anyhow",
- "async-openai",
+ "async-openai 0.13.1",
  "backoff",
  "clap",
  "futures",
@@ -1352,7 +1374,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1a99d843674a3468b4a9200a565bbe909a0152f95e82a52feae71e6bf2d4b49d"
 dependencies = [
  "anyhow",
- "async-openai",
+ "async-openai 0.12.2",
  "base64",
  "bstr",
  "fancy-regex",
