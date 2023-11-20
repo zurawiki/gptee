@@ -160,9 +160,9 @@ dependencies = [
 
 [[package]]
 name = "base64"
-version = "0.21.3"
+version = "0.21.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "414dcefbc63d77c526a76b3afcf6fbb9b5e2791c19c3aa2297733208750c6e53"
+checksum = "35636a1494ede3b646cc98f74f8e62c773a38a659ebc777a2cf26b9b74171df9"
 
 [[package]]
 name = "bit-set"
@@ -187,13 +187,13 @@ checksum = "bef38d45163c2f1dde094a7dfd33ccf595c92905c8f8f4fdc18d06fb1037718a"
 
 [[package]]
 name = "bstr"
-version = "0.2.17"
+version = "1.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ba3569f383e8f1598449f1a423e72e99569137b47740b1da11ef19af3d5c3223"
+checksum = "542f33a8835a0884b006a0c3df3dadd99c0c3f296ed26c2fdc8028e01ad6230c"
 dependencies = [
- "lazy_static",
  "memchr",
- "regex-automata 0.1.10",
+ "regex-automata 0.4.3",
+ "serde",
 ]
 
 [[package]]
@@ -966,6 +966,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "regex-automata"
+version = "0.4.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5f804c7828047e88b2d32e2d7fe5a105da8ee3264f01902f796c8e067dc2483f"
+
+[[package]]
 name = "regex-syntax"
 version = "0.6.29"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1321,9 +1327,9 @@ dependencies = [
 
 [[package]]
 name = "tiktoken-rs"
-version = "0.5.3"
+version = "0.5.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fdf6d1233fb3916cc4a19756df59472ef702ae82d1b4eda2dca8794911f9dc9d"
+checksum = "a4427b6b1c6b38215b92dd47a83a0ecc6735573d0a5a4c14acc0ac5b33b28adb"
 dependencies = [
  "anyhow",
  "async-openai",
