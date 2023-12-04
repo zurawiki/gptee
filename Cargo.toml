@@ -20,7 +20,7 @@ path = "src/main.rs"
 anyhow = "1.0.75"
 async-openai = "0.14.2"
 backoff = { version = "0.4.0", features = ["tokio"] }
-clap = { version = "4.4.3", features = ["derive"] }
+clap = { version = "4.4.10", features = ["derive"] }
 futures = "0.3.28"
 tiktoken-rs = { version = "0.5.3", features = ["async-openai"]}
 tokio = {version = "1.32.0", features = ["full"]}
